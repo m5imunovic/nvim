@@ -26,7 +26,7 @@ return {
     dap.adapters.cppdbg = {
       id = "cppdbg",
       type = "executable",
-      command = "/home/swexcad/.vscode/extensions/ms-vscode.cpptools-1.19.8-linux-x64/debugAdapters/bin/OpenDebugAD7",
+      command = "$HOME/.vscode/extensions/ms-vscode.cpptools-1.19.8-linux-x64/debugAdapters/bin/OpenDebugAD7",
     }
 
     dap.configurations.cpp = {
@@ -36,7 +36,7 @@ return {
         request = 'launch',
         MIMode = 'gdb',
         miDebuggerPath = '/usr/bin/gdb',
-        cwd = '${workspaceFolder}',
+        cwd = '${workspaceFolder}/build',
         program = function()
           return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
         end,
