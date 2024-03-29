@@ -2,11 +2,13 @@ return {
   "mfussenegger/nvim-dap",
   dependencies = {
     "rcarriga/nvim-dap-ui",
-    "nvim-neotest/nvim-nio"
+    "nvim-neotest/nvim-nio",
+    "mfussenegger/nvim-dap-python",
   },
   config = function ()
     local dap = require("dap")
     local dapui = require("dapui")
+    dapui.setup()
 
     dap.listeners.before.attach.dapui_config = function()
       dapui.open()
@@ -20,13 +22,26 @@ return {
     dap.listeners.before.event_exited.dapui_config = function()
       dapui.close()
     end
-    vim.keymap.set("n", "<leader>dt", dap.toggle_breakpoint, {})
-    vim.keymap.set("n", "<leader>dc", dap.continue, {})
+    -- vim.keymap.set("n", "<leader>dt", dap.toggle_breakpoint, {})
+    -- vim.keymap.set("n", "<leader>dc", dap.continue, {})
+    vim.keymap.set('n', '<F5>', function() require('dap').continue() end)
+    vim.keymap.set('n', '<F10>', function() require('dap').step_over() end)
+    vim.keymap.set('n', '<F11>', function() require('dap').step_into() end)
+    vim.keymap.set('n', '<F12>', function() require('dap').step_out() end)
+    vim.keymap.set('n', '<Leader>b', function() require('dap').toggle_breakpoint() end)
+    -- vim.keymap.set('n', '<Leader>B', function() require('dap').set_breakpoint() end)
+    -- vim.keymap.set('n', '<Leader>lp', function() require('dap').set_breakpoint(nil, nil, vim.fn.input('Log point message: ')) end)
+    -- vim.keymap.set('n', '<Leader>dr', function() require('dap').repl.open() end)
+    -- vim.keymap.set('n', '<Leader>dl', function() require('dap').run_last() end)
+    vim.keymap.set({'n', 'v'}, '<Leader>dh', function()
+      require('dap.ui.widgets').hover()
+    end)
 
     dap.adapters.cppdbg = {
       id = "cppdbg",
       type = "executable",
-      command = "$HOME/.vscode/extensions/ms-vscode.cpptools-1.19.8-linux-x64/debugAdapters/bin/OpenDebugAD7",
+      -- install cpptools via Mason
+      command = vim.fn.expand("~/.local/share/nvim/mason/bin/OpenDebugAD7"),
     }
 
     dap.configurations.cpp = {
@@ -41,6 +56,31 @@ return {
           return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
         end,
       },
+    }
+
+    dap.adapters.python = function(cb, config)
+        cb({
+            type = "executable",
+            -- command = vim.fn.expand("~/.local/share/nvim/mason/packages/debugpy/venv/bin/python3"),
+            command =  os.getenv("CONDA_PREFIX") .. "/bin/python3",
+            args = { "-m", "debugpy.adapter" },
+            options = {
+                source_filetype = "python",
+            }
+        })
+    end
+
+    dap.configurations.python = {
+      {
+        name = "Debug in menv";
+        type = "python";
+        request = "launch";
+        program = "${file}";
+        pythonPath = function()
+            return os.getenv("CONDA_PREFIX") .. "/bin/python3"
+            -- return vim.fn.expand("~/.local/share/nvim/mason/packages/debugpy/venv/bin/python3")
+        end;
+      }
     }
 
 
