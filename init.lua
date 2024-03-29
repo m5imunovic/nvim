@@ -5,6 +5,7 @@
 -- vim.g.loaded_netrwPlugin = 1
 
 require("vim-options")
+require("remap")
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -22,4 +23,3 @@ vim.opt.rtp:prepend(lazypath)
 local opts = {}
 
 require("lazy").setup("plugins", opts)
-
