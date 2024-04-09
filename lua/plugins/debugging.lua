@@ -28,7 +28,9 @@ return {
     vim.keymap.set('n', '<F10>', function() require('dap').step_over() end)
     vim.keymap.set('n', '<F11>', function() require('dap').step_into() end)
     vim.keymap.set('n', '<F12>', function() require('dap').step_out() end)
-    vim.keymap.set('n', '<Leader>b', function() require('dap').toggle_breakpoint() end)
+    vim.keymap.set('n', '<F9>', function() require('dap').toggle_breakpoint() end)
+    -- debug test
+    vim.keymap.set({ "n", "v" }, "<Leader>dt", function() require("dap-python").test_method() end)
     -- vim.keymap.set('n', '<Leader>B', function() require('dap').set_breakpoint() end)
     -- vim.keymap.set('n', '<Leader>lp', function() require('dap').set_breakpoint(nil, nil, vim.fn.input('Log point message: ')) end)
     -- vim.keymap.set('n', '<Leader>dr', function() require('dap').repl.open() end)
@@ -37,6 +39,17 @@ return {
       require('dap.ui.widgets').hover()
     end)
 
+    --require("dap-python").setup(os.getenv("CONDA_PREFIX") .. "/bin/python3")
+    require("dap-python").resolve_python = function()
+        if vim.fn.executable(os.getenv("CONDA_PREFIX") .. "/bin/python3") == 1 then
+            return os.getenv("CONDA_PREFIX") .. "/bin/python3"
+        elseif vim.fn.executable(os.getenv("VIRTUAL_ENV") .. "/bin/python3") == 1 then
+            return os.getenv("VIRTUAL_ENV") .. "/bin/python3"
+        else
+            return "/usr/bin/python3"
+        end
+    end
+    require("dap-python").test_runner = "pytest"
     dap.adapters.cppdbg = {
       id = "cppdbg",
       type = "executable",
@@ -77,7 +90,14 @@ return {
         request = "launch";
         program = "${file}";
         pythonPath = function()
-            return os.getenv("CONDA_PREFIX") .. "/bin/python3"
+            if vim.fn.executable(os.getenv("CONDA_PREFIX") .. "/bin/python3") == 1 then
+                return os.getenv("CONDA_PREFIX") .. "/bin/python3"
+            elseif vim.fn.executable(os.getenv("VIRTUAL_ENV") .. "/bin/python3") == 1 then
+                return os.getenv("VIRTUAL_ENV") .. "/bin/python3"
+            else
+                return "/usr/bin/python3"
+            end
+            --return os.getenv("CONDA_PREFIX") .. "/bin/python3"
             -- return vim.fn.expand("~/.local/share/nvim/mason/packages/debugpy/venv/bin/python3")
         end;
       }
